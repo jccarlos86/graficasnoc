@@ -1,0 +1,192 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+    </head>
+    <body>
+        <!-- <canvas id="canvas" width="200" height="200"></canvas> -->
+        <canvas id="myChart" width="400" height="400"></canvas>
+
+        <script src="resources/jquery/jquery-3.2.1.min.js"></script>
+        <script src="chartjs.min.js"></script>
+        <script src="funciones.js"></script>
+        <script>
+            // let canvas = document.getElementById("canvas").getContext("2d");
+
+            // var chart = new Chart(canvas, {
+            //     type: "bar",
+            //     data:{
+            //         labels: ["vino", "Tequila", "Cerveza", "Ron"],
+            //         datasets:[
+            //             {
+            //                 label: "Titulo de la grafica",
+            //                 backgroundColor: "#c2c2c2",
+            //                 borderColor: "#f2f2f2",
+            //                 data: [12, 10, 13, 11]
+            //             }
+            //         ]
+            //     }
+            // });
+
+
+            
+        // var ctx = document.getElementById('myChart');
+        // var myChart = new Chart(ctx, {
+        //     type: 'line',
+        //     data: {
+        //         labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
+        //         datasets: [
+        //             {
+        //                 label: 'votos1',
+        //                 data: [12, 19, 3, 5, 2, 3],
+        //                 fill: false,
+        //                 backgroundColor: "#6E2796",
+        //                 borderColor: "#6E2796",
+        //                 //borderWidth: 1
+        //             },
+        //             {
+        //                 label: 'votos2',
+        //                 data: [17, 9, 43, 57, 20, 36],
+        //                 fill: false,
+        //                 backgroundColor: "#2DAA99",
+        //                 borderColor: "#2DAA99",
+        //                 //borderWidth: 1
+        //             },
+        //             {
+        //                 label: 'votos3',
+        //                 data: [15, 49, 3, 7, 33, 23],
+        //                 fill: false,
+        //                 backgroundColor: "#E5D52F",
+        //                 borderColor: "#E5D52F",
+        //                 //borderWidth: 1
+        //             },
+        //             {
+        //                 label: 'votos4',
+        //                 data: [7, 23, 23, 55, 22, 3],
+        //                 fill: false,
+        //                 backgroundColor: "#E5422F",
+        //                 borderColor: "#E5422F",
+        //                 //borderWidth: 1
+        //             },
+        //             {
+        //                 label: 'votos5',
+        //                 data: [7, 9, 4, 7, 22, 34],
+        //                 fill: false,
+        //                 backgroundColor: [
+        //                     'rgba(255, 159, 64, 0.2)'
+        //                 ],
+        //                 borderColor: [
+        //                     'rgba(255, 159, 64, 1)'
+        //                 ],
+        //                 //borderWidth: 1
+        //             },
+        //             {
+        //                 label: 'votos6',
+        //                 data: [1, 19, 14, 37, 120, 6],
+        //                 fill: false,
+        //                 backgroundColor: [
+        //                     'rgba(75, 192, 192, 0.2)',
+        //                 ],
+        //                 borderColor: [
+        //                     'rgba(153, 102, 255, 1)',
+        //                 ],
+        //                 //borderWidth: 1
+        //             },
+        //             {
+        //                 label: 'votos7',
+        //                 data: [45, 39, 30, 50, 25, 86],
+        //                 fill: false,
+        //                 backgroundColor: [
+        //                     'rgba(255, 159, 64, 0.2)'
+        //                 ],
+        //                 borderColor: [
+        //                     'rgba(255, 159, 64, 1)'
+        //                 ],
+        //                 //borderWidth: 1
+        //             },
+        //         ]
+        //     },
+        //     options: {
+        //         scales: {
+        //             yAxes: [{
+        //                 ticks: {
+        //                     beginAtZero: true
+        //                 }
+        //             }]
+        //         }
+        //     }
+        // });
+
+
+
+
+        //multi lineas
+        // var lineChartData = {
+		// 	labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+		// 	datasets: [
+        //         {
+        //             label: 'My First dataset',
+        //             borderColor: "#c2c2c2",
+        //             backgroundColor: "#c2c2c2",
+        //             fill: false,
+        //             data: [11,23,53,24,5,45,23],
+        //             yAxisID: 'y-axis-1',
+        //         },
+        //         {
+        //             label: 'My Second dataset',
+        //             borderColor: window.chartColors.blue,
+        //             backgroundColor: window.chartColors.blue,
+        //             fill: false,
+        //             data: [3,4,6,8,1,22,76],
+        //             yAxisID: 'y-axis-2'
+        //         }
+        //     ]
+		// };
+
+		// window.onload = function() {
+		// 	var ctx = document.getElementById('canvas').getContext('2d');
+		// 	window.myLine = Chart.Line(ctx, {
+		// 		data: lineChartData,
+		// 		options: {
+		// 			responsive: true,
+		// 			hoverMode: 'index',
+		// 			stacked: false,
+		// 			title: {
+		// 				display: true,
+		// 				text: 'Chart.js Line Chart - Multi Axis'
+		// 			},
+		// 			scales: {
+		// 				yAxes: [{
+		// 					type: 'linear', // only linear but allow scale type registration. This allows extensions to exist solely for log scale for instance
+		// 					display: true,
+		// 					position: 'left',
+		// 					id: 'y-axis-1',
+		// 				}, {
+		// 					type: 'linear', // only linear but allow scale type registration. This allows extensions to exist solely for log scale for instance
+		// 					display: true,
+		// 					position: 'right',
+		// 					id: 'y-axis-2',
+
+		// 					// grid line settings
+		// 					gridLines: {
+		// 						drawOnChartArea: false, // only want the grid lines for one axis to show up
+		// 					},
+		// 				}],
+		// 			}
+		// 		}
+		// 	});
+		// };
+
+		// document.getElementById('randomizeData').addEventListener('click', function() {
+		// 	lineChartData.datasets.forEach(function(dataset) {
+		// 		dataset.data = dataset.data.map(function() {
+		// 			return randomScalingFactor();
+		// 		});
+		// 	});
+
+		// 	window.myLine.update();
+		// });
+	
+
+        </script>
+    </body>
+</html>

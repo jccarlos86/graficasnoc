@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="resources/bootstrap/css/bootstrap.min.css">
+    <title>Graficas</title>
+    <style>
+        .card{
+            min-width: 450px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <!-- opciones de graficas -->
+        <div class="row">
+            <div class="col-sm-12 pt-2 pb-2">
+                <!-- <div class="form-group">
+                    <label for="selectPaises">Elige</label>
+                    <select class="form-control" multiple id="selectPaises"></select>
+                </div> -->
+                <button id="btnChart" type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalGrafica">
+                    <!-- <i class="fas fa-chart-line"></i> -->
+                    <!-- <i class="fas fa-plus"></i> -->
+                    <span>Agregar Gr&aacute;fica</span>
+                </button>
+                <!-- <button id="btnCrear" type="button" class="btn btn-primary">Crear</button> -->
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-12">
+                <div id="cardGraficas" class="card-group"></div> 
+                <!-- <div id="cardGraficas" class=""></div>  -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal alerta borrar grafica-->
+    <div class="modal fade" id="modalBorrarGrafica" tabindex="-1" role="dialog" aria-labelledby="modalBorrarGraficaTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+            <h5 class="modal-title" id="modalBorrarGraficaTitle">Eliminar Grafica</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            </div>
+            <div class="modal-body">
+                Estas seguro que deseas eliminar la grafica <br>
+                <span id="nombreGrafica" class="text-danger"></span>
+            </div>
+            <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+            <button type="button" class="btn btn-primary" id="eliminarGrafica">Eliminar</button>
+            </div>
+        </div>
+        </div>
+    </div>
+
+    <!-- Modal Tipo de Graficas -->
+    <div class="modal fade" id="modalGrafica" tabindex="-1" role="dialog" aria-labelledby="modalGraficaTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+            <h5 class="modal-title" id="modalGraficaTitle">Configura la grafica a crear</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            </div>
+            <div class="modal-body">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <label>Elige una fuente</label>
+                            <div class="form-group">
+                                <select class="form-control select-config setting-fuente" id="Pais_Fuente">
+                                    <option value="0">Pais</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <select class="form-control select-config setting-fuente" id="Proveedor_Fuente">
+                                    <option value="0">Proveedor</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <select class="form-control select-config setting-fuente" id="Cliente_Fuente">
+                                    <option value="0">Cliente</option>
+                                </select>
+                            </div>
+                           
+                        </div>
+                        <div class="col-sm-6">
+                            <label>Elige un destino</label>
+                            <div class="form-group">
+                                <select class="form-control select-config setting-destino" id="Pais_Destino">
+                                    <option value="0">Pais</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <select class="form-control select-config setting-destino" id="Proveedor_Destino">
+                                    <option value="0">Proveedor</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <select class="form-control select-config setting-destino" id="Cliente_Destino">
+                                    <option value="0">Cliente</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <label>Escribe un titulo para la grafica</label>
+                            <div class="form-group">
+                                <input type="text" class="form-control" id="titulo_Grafica" placeholder="Titulo para la Grafica">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" id="cancelarGrafica" data-dismiss="modal">Cerrar</button>
+            <button type="button" class="btn btn-primary" id="CrearGrafica">Crear</button>
+            </div>
+        </div>
+        </div>
+    </div>
+    
+    <script src="resources/jquery/jquery-3.2.1.min.js"></script>
+    <script src="resources/bootstrap/js/bootstrap.min.js"></script>
+    <script src="chartjs.min.js"></script>
+    <script src="graficas.js"></script>
+</body>
+</html>
