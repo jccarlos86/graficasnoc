@@ -197,7 +197,7 @@ var _settings = {
     ],
     labes: ['label1', 'label2', 'label3', 'label4', 'label5', 'label6'],
     templates:{
-        contenedorGrafica:'<div class="card m-1">'+
+        contenedorGrafica:'<div class="card m-1 border-0">'+
                             '<div class="card-body">'+
                                 '<div class="input-group">'+
                                     '<div class="input-group-prepend">'+
@@ -223,7 +223,7 @@ var _settings = {
 
                                     '</div>'+
                                     '<input type="text" class="form-control" readonly value="#titulo#">'+
-                                    '<button type="button" class="close text-danger delete-grafica ml-2" data-nombre="#nombre-grafica#" data-toggle="modal" data-target="#modalBorrarGrafica">'+
+                                    '<button type="button" class="btn btn-danger delete-grafica ml-2" data-nombre="#nombre-grafica#" data-toggle="modal" data-target="#modalBorrarGrafica">'+
                                         '<span aria-hidden="true">&times;</span>'+
                                     '</button>'+
                                 '</div>'+
@@ -236,12 +236,21 @@ var _settings = {
                         //'</div>'
     }
 };
+
 //-----------------------
-var idGraficas = 0;
+var idGraficas = 0; //graficas creadas
 var idChartDelete = [];
 var idDelete = -1;
 var tarjetaEliminar;
 var tituloActual = "";
+var consulta = []; //querys de cada grafica
+var intervalo = -1; //id del intervalo
+var graficas = []; //graficas creadas
+var maxLabels = 5; //maximo de datos a mostrar en graficas
+var removeFirstsLabels = 1; //primeros n datos a eliminar de la grafica cuando se alcance el maximo
+var cont = 0; //contador de iteraciones en graficas
+var refresh = 5000; //tiempo en que se actualizan las graficas.
+var maxChart = 25; //graficas por pagina.
 //-----------------------
 //funciones
 function borrar(){
@@ -381,8 +390,156 @@ function cargarClientes(){
     $("#Cliente_Fuente").append(selCliente);
 }
 
+function queryGraficas(){
+    /*
+     * fuente: quien conecta
+     * destino: a donde conecta
+     */
+
+    //fuente
+    var pf = $("#Pais_Fuente").val();
+    var prf = $("#Proveedor_Fuente").val();
+    var cf = $("#Cliente_Fuente").val();
+    //destino
+    var pd = $("#Pais_Destino").val();
+    var prd = $("#Proveedor_Destino").val();
+    var cd = $("#Cliente_Destino").val();
+
+    var tit = $("#titulo_Grafica").val();
+    var fuente;
+    var destino;
+    var tipo;
+    var valido = true;
+    switch(true){
+        case pf!= 0 && prd != 0:
+            //pais-proveedor.
+            fuente = pf;
+            destino = prd;
+            tipo = "pais-proveedor";
+            break;
+        case pf != 0 && cd != 0:
+            //pais-cliente
+            fuente = pf;
+            destino = cd;
+            tipo = "pais-cliente";
+            break;
+        case prf != 0 && pd != 0:
+            //proveedor-pais
+            fuente = prf;
+            destino = pd;
+            tipo = "proveedor-pais";
+            break;
+        case prf != 0 && cd != 0:
+            //proveedor-cliente
+            fuente = prf;
+            destino = cd;
+            tipo = "proveedor-cliente";
+            break;
+        case cf != 0 && pd != 0:
+            //cliente-pais
+            fuente = cf;
+            destino = pd;
+            tipo = "cliente-pais";
+            break;
+        case cf != 0 && prd != 0:
+            //cliente-proveedor.
+            fuente = cf;
+            destino = prd;
+            tipo = "cliente-proveedor";
+            break;
+        default:
+            //no existe esta combinacion
+            valido = false;
+            tipo = undefined;
+            alert("ha habido un error al elegir el tipo de grafico.");
+            break;
+    }
+
+    if(valido){
+        // consulta.push({
+        //     titulo: tit.length > 0 ? tit : idGraficas.toString(),
+        //     fuente: fuente,
+        //     destino: destino
+        // });
+        var query = {
+            titulo: tit.length > 0 ? tit : idGraficas.toString(),
+            fuente: fuente,
+            destino: destino,
+            tipo: tipo
+        };
+        chart(query);
+    }
+    
+}
+
+function validaFiltro(){
+    result = false;
+     //fuente
+     var pf = $("#Pais_Fuente").val();
+     var prf = $("#Proveedor_Fuente").val();
+     var cf = $("#Cliente_Fuente").val();
+     //destino
+     var pd = $("#Pais_Destino").val();
+     var prd = $("#Proveedor_Destino").val();
+     var cd = $("#Cliente_Destino").val();
+
+     if((pf != 0 || prf != 0 || cf != 0) && 
+     (pd != 0 || prd != 0 || cd != 0)){
+        result = true;
+     }
+     return result;
+}
+
+function eliminarPrimeros(charts){
+    for(var g = 0; g < charts.length; g++){
+        charts[g].grafica.data.labels.splice(0, removeFirstsLabels);
+        for(var d = 0; d < charts[g].grafica.data.datasets.length; d++){
+            charts[g].grafica.data.datasets[d].data.splice(0, removeFirstsLabels);
+            charts[g].grafica.update();
+        }
+    }
+}
+
+//actualiza graficas.
+function addData(chart, label, data) {
+    chart.data.labels.push(label);
+    chart.data.datasets.forEach((dataset) => {
+        //dataset.data.push(data);
+        dataset.data.push(Math.round(Math.random() * 99));
+    });
+    chart.update();
+}
+
+
+num = 7;
+function updGraph(){
+    var charts = [];
+    for(var a = 0; a < graficas.length; a++){
+        addData(graficas[a].grafica, "Label" + num, 0);
+        graficas[a].labelsCount++;
+        if(graficas[a].labelsCount > maxLabels){
+            charts.push(graficas[a]);
+        }
+    }
+    num++;
+
+    if(charts.length > 0){
+        eliminarPrimeros(charts);
+    }
+
+    // cont++;
+    // if(cont > maxLabels){
+    //     eliminarPrimeros();
+    // }
+}
+
+//esta funcion es solo para demo, eliminar al final
+function iniciarIntervalo(){
+    intervalo = setInterval(()=>{updGraph()}, refresh);
+}
+
 //grafica.
-function chart(data){
+function chart(consulta){
     var lblFecha = [];
     var lblPais = [];
     var lblCantidad = [];
@@ -416,23 +573,23 @@ function chart(data){
     //     });
     // }
 
-    var titulo = $("#titulo_Grafica").val().length > 0 ? $("#titulo_Grafica").val() : idGraficas.toString();
+    //var titulo = $("#titulo_Grafica").val().length > 0 ? $("#titulo_Grafica").val() : idGraficas.toString();
 
     $("#cardGraficas").append(_settings.templates.contenedorGrafica
         .replace("#idgrafica#", idGraficas.toString())
         // .replace("#titulo#", idGraficas.toString())
         //.replace("#nombre-grafica#", idGraficas.toString())
-        .replace("#titulo#", titulo)
-        .replace("#nombre-grafica#", titulo)
+        .replace("#titulo#", consulta.titulo)
+        .replace("#nombre-grafica#", consulta.titulo)
         );
 
     //$("#cardGraficas").append(_settings.templates.contenedorFlex.replace("#idgrafica#", idGraficas.toString()));
 
-    var color = newColor();
+    //var color = newColor();
     var ctx = document.getElementById("grafica-" + idGraficas.toString()).getContext("2d");
     var myChart = new Chart(ctx, {
         type: 'line',
-        borderWidth: 1,
+        lineWidth: 1,
         data: {
             labels: ['label1', 'label2', 'label3', 'label4', 'label5', 'label6'],
             datasets: newDatasets()
@@ -449,13 +606,74 @@ function chart(data){
                 }]
             }
         }
+        //scroll lateral de la grafica.
+        // ,animation:{
+        //     onComplete: function (){
+        //         var sourceCanvas = this.chart.ctx.canvas;
+        //         var copyWidth = this.scale.xScalePaddingLeft - 5;
+        //         var copyHeight = this.scale.endPoint + 5;
+        //         // var targetCtx = document.getElementById("myChartAxis").getContext("2d");
+        //         ctx.canvas.width = copyWidth;
+        //         ctx.drawImage(sourceCanvas, 0, 0, copyWidth, copyHeight, 0, 0, copyWidth, copyHeight);
+        //     }
+        // }
+
+
+    //     ,animation: {
+    //         onComplete: function () {
+    //             if (!rectangleSet) {
+    //                 var scale = window.devicePixelRatio;                       
+
+    //                 var sourceCanvas = chartTest.chart.canvas;
+    //                 var copyWidth = chartTest.scales['y-axis-0'].width - 10;
+    //                 var copyHeight = chartTest.scales['y-axis-0'].height + chartTest.scales['y-axis-0'].top + 10;
+
+    //                 var targetCtx = document.getElementById("axis-Test").getContext("2d");
+
+    //                 targetCtx.scale(scale, scale);
+    //                 targetCtx.canvas.width = copyWidth * scale;
+    //                 targetCtx.canvas.height = copyHeight * scale;
+
+    //                 targetCtx.canvas.style.width = `${copyWidth}px`;
+    //                 targetCtx.canvas.style.height = `${copyHeight}px`;
+    //                 targetCtx.drawImage(sourceCanvas, 0, 0, copyWidth * scale, copyHeight * scale, 0, 0, copyWidth * scale, copyHeight * scale);
+
+    //                 var sourceCtx = sourceCanvas.getContext('2d');
+
+    //                 // Normalize coordinate system to use css pixels.
+
+    //                 sourceCtx.clearRect(0, 0, copyWidth * scale, copyHeight * scale);
+    //                 rectangleSet = true;
+    //             }
+    //         },
+    //         onProgress: function () {
+    //             if (rectangleSet === true) {
+    //                 var copyWidth = chartTest.scales['y-axis-0'].width;
+    //                 var copyHeight = chartTest.scales['y-axis-0'].height + chartTest.scales['y-axis-0'].top + 10;
+
+    //                 var sourceCtx = chartTest.chart.canvas.getContext('2d');
+    //                 sourceCtx.clearRect(0, 0, copyWidth, copyHeight);
+    //             }
+    //         }
+    //     }
+    // }
+    //});
+
+
+
     });
-    //$("#ChartTitle-"+idGraficas).html($("#titulo_Grafica").val());
+    graficas.push({
+        //nombre: idGraficas, 
+        nombre: consulta.titulo,
+        grafica: myChart,
+        query: consulta,
+        labelsCount: 0
+    });
     idGraficas++;
     $(".edit-confirm").hide();
 }
 
-//
+//--------------------------------->triggers
 $(document).ready(function(){
     cargarPaises();
     cargarProveedores();
@@ -517,11 +735,24 @@ $("#cancelarGrafica").click(function(){
 });
 
 $("#CrearGrafica").click(function(){
-    chart();
-    $(".select-config").val(0);
-    $("#titulo_Grafica").val("");
-    $(".select-config").attr("disabled", false);
-    $("#modalGrafica").modal("hide");
+    //validar filtros
+    if(validaFiltro()){
+        //chart();
+        //crear query para graficas
+        queryGraficas();
+        //limpiar opciones de graficas
+        $(".select-config").val(0);
+        $("#titulo_Grafica").val("");
+        $(".select-config").attr("disabled", false);
+        $("#modalGrafica").modal("hide");
+        
+    }else{
+        alert("faltan llenar campos");
+    }
+});
+
+$("#btnIntervalo").click(function(){
+    iniciarIntervalo();
 });
 
 $(".select-config").change(function(){
@@ -555,3 +786,47 @@ $(".select-config").change(function(){
             break;
     }
 });
+
+
+
+///*************************************************** */
+// var ctx = document.getElementById("myChart").getContext("2d");
+
+//         var data = {
+//             labels: ["January", "February", "March", "April", "May", "June", "July"],
+//             datasets: [
+//                 {
+//                     label: "My First dataset",
+//                     fillColor: "rgba(220,220,220,0.2)",
+//                     strokeColor: "rgba(220,220,220,1)",
+//                     pointColor: "rgba(220,220,220,1)",
+//                     pointStrokeColor: "#fff",
+//                     pointHighlightFill: "#fff",
+//                     pointHighlightStroke: "rgba(220,220,220,1)",
+//                     data: [65, 59, 80, 81, 56, 55, 40]
+//                 },
+//                 {
+//                     label: "My Second dataset",
+//                     fillColor: "rgba(151,187,205,0.2)",
+//                     strokeColor: "rgba(151,187,205,1)",
+//                     pointColor: "rgba(151,187,205,1)",
+//                     pointStrokeColor: "#fff",
+//                     pointHighlightFill: "#fff",
+//                     pointHighlightStroke: "rgba(151,187,205,1)",
+//                     data: [28, 48, 40, 19, 86, 27, 90]
+//                 }
+//             ]
+//         };
+
+//         new Chart(ctx).Line(data, {
+//             onAnimationComplete: function () {
+//                 var sourceCanvas = this.chart.ctx.canvas;
+//                 var copyWidth = this.scale.xScalePaddingLeft - 5;
+//                 // the +5 is so that the bottommost y axis label is not clipped off
+//                 // we could factor this in using measureText if we wanted to be generic
+//                 var copyHeight = this.scale.endPoint + 5;
+//                 var targetCtx = document.getElementById("myChartAxis").getContext("2d");
+//                 targetCtx.canvas.width = copyWidth;
+//                 targetCtx.drawImage(sourceCanvas, 0, 0, copyWidth, copyHeight, 0, 0, copyWidth, copyHeight);
+//             }
+//         });

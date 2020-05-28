@@ -1,10 +1,16 @@
 <?php
     include 'conexion.php';
+
+    // $fuente = $_POST['fuente'];
+    // $destino = $_POST['destino'];
+
     $result;
     $jsonArray = array();
     //$query = "SELECT pais, fecha, cantidad FROM GraficasNoc";
     //chart
     $query = "SELECT pais, fecha, cantidad FROM GraficasNoc GROUP BY pais";
+
+    //$query = "SELECT pais, fecha, cantidad FROM GraficasNoc GROUP BY pais";
 
     $sel = $con ->query($query);
     if($sel){
