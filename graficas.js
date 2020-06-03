@@ -246,13 +246,24 @@ var tituloActual = "";
 var consulta = []; //querys de cada grafica
 var intervalo = -1; //id del intervalo
 var graficas = []; //graficas creadas
-var maxLabels = 5; //maximo de datos a mostrar en graficas
 var removeFirstsLabels = 1; //primeros n datos a eliminar de la grafica cuando se alcance el maximo
 var cont = 0; //contador de iteraciones en graficas
-var refresh = 5000; //tiempo en que se actualizan las graficas.
 var maxChart = 25; //graficas por pagina.
+var refresh = 5000; //tiempo en que se actualizan las graficas(intervalo de tiempo).
+var maxLabels = 10; //maximo de datos a mostrar en graficas
+var tipoGrafica = 0; //tipo de grafica seleccionada
+var minWith = 450; //tamano minimo de la grafica
 //-----------------------
+
+
 //funciones
+function initPage(){
+    $("#realCharts").show();
+    $("#temporalChart").hide();
+    $("#comparativaChart").hide();
+    $("#selectTipoGrafica").change();
+}
+
 function borrar(){
     $.ajax({
         data: {   },
@@ -332,9 +343,17 @@ function newColor(){
     return color;
 }
 
+function newLabels(){
+    var labels = [];
+    for(var c = 0; c < maxLabels; c++){
+        labels.push("Label" + (c + 1));
+    }
+    return labels;
+}
+
 function newCantidad(){
     var cantidades = [];
-    for(var c = 0; c < 7; c++){
+    for(var c = 0; c < maxLabels; c++){
         cantidades.push(Math.round(Math.random() * 99));
     }
     return cantidades;
@@ -342,22 +361,23 @@ function newCantidad(){
 
 function newPaises(){
     var paises = [];
-    for(var c = 0; c < 6; c++){
+    for(var c = 0; c < maxLabels; c++){
         paises.push(_settings.paises[Math.round(Math.random() * _settings.paises.length + 1)]);
     }
     return paises;
 }
 
-function newDatasets(){
+function newDatasets(destinos){
     var datasets = [];
-    for(var c = 0; c < 6; c++){
+    for(var c = 0; c < destinos.length; c++){
         var color = newColor();
         datasets.push({
-            label: _settings.paises[Math.round(Math.random() * _settings.paises.length + 1)],
+            //label: _settings.paises[Math.round(Math.random() * _settings.paises.length + 1)],
+            label: destinos[c],
             data: newCantidad(),
             fill: false,
             backgroundColor: color,
-            borderColor: color,
+            borderColor: color
         });
     }
     return datasets;
@@ -390,6 +410,14 @@ function cargarClientes(){
     $("#Cliente_Fuente").append(selCliente);
 }
 
+function getAllValues(destino){
+    var arr = [];
+    $(destino + " option").each(function(){
+        arr.push($(this).val());
+    });
+    return arr;
+}
+
 function queryGraficas(){
     /*
      * fuente: quien conecta
@@ -404,6 +432,9 @@ function queryGraficas(){
     var pd = $("#Pais_Destino").val();
     var prd = $("#Proveedor_Destino").val();
     var cd = $("#Cliente_Destino").val();
+    //fechas
+    var fi = $("#fechaInicio").val();
+    var ff =  $("#fechaFin").val();
 
     var tit = $("#titulo_Grafica").val();
     var fuente;
@@ -414,37 +445,37 @@ function queryGraficas(){
         case pf!= 0 && prd != 0:
             //pais-proveedor.
             fuente = pf;
-            destino = prd;
+            destino = prd == 1 ? getAllValues("#Proveedor_Destino") : prd;
             tipo = "pais-proveedor";
             break;
         case pf != 0 && cd != 0:
             //pais-cliente
             fuente = pf;
-            destino = cd;
+            destino = cd == 1 ? getAllValues("#Cliente_Destino") : cd;
             tipo = "pais-cliente";
             break;
         case prf != 0 && pd != 0:
             //proveedor-pais
             fuente = prf;
-            destino = pd;
+            destino = pd == 1 ? getAllValues("#Pais_Destino") : pd;
             tipo = "proveedor-pais";
             break;
         case prf != 0 && cd != 0:
             //proveedor-cliente
             fuente = prf;
-            destino = cd;
+            destino = cd == 1 ? getAllValues("#Cliente_Destino") : cd;
             tipo = "proveedor-cliente";
             break;
         case cf != 0 && pd != 0:
             //cliente-pais
             fuente = cf;
-            destino = pd;
+            destino = pd == 1 ? getAllValues("#Pais_Destino") : pd;
             tipo = "cliente-pais";
             break;
         case cf != 0 && prd != 0:
             //cliente-proveedor.
             fuente = cf;
-            destino = prd;
+            destino = prd == 1 ? getAllValues("#Proveedor_Destino") : prd;
             tipo = "cliente-proveedor";
             break;
         default:
@@ -456,16 +487,13 @@ function queryGraficas(){
     }
 
     if(valido){
-        // consulta.push({
-        //     titulo: tit.length > 0 ? tit : idGraficas.toString(),
-        //     fuente: fuente,
-        //     destino: destino
-        // });
         var query = {
             titulo: tit.length > 0 ? tit : idGraficas.toString(),
             fuente: fuente,
             destino: destino,
-            tipo: tipo
+            tipo: tipo,
+            fechaInicio: fi,
+            fechaFin: ff
         };
         chart(query);
     }
@@ -483,8 +511,7 @@ function validaFiltro(){
      var prd = $("#Proveedor_Destino").val();
      var cd = $("#Cliente_Destino").val();
 
-     if((pf != 0 || prf != 0 || cf != 0) && 
-     (pd != 0 || prd != 0 || cd != 0)){
+     if(pf != 0 || prf != 0 || cf != 0){
         result = true;
      }
      return result;
@@ -510,27 +537,18 @@ function addData(chart, label, data) {
     chart.update();
 }
 
-
-num = 7;
 function updGraph(){
     var charts = [];
     for(var a = 0; a < graficas.length; a++){
-        addData(graficas[a].grafica, "Label" + num, 0);
         graficas[a].labelsCount++;
+        addData(graficas[a].grafica, "Label" + graficas[a].labelsCount.toString(), 0);
         if(graficas[a].labelsCount > maxLabels){
             charts.push(graficas[a]);
         }
     }
-    num++;
-
     if(charts.length > 0){
         eliminarPrimeros(charts);
     }
-
-    // cont++;
-    // if(cont > maxLabels){
-    //     eliminarPrimeros();
-    // }
 }
 
 //esta funcion es solo para demo, eliminar al final
@@ -540,41 +558,6 @@ function iniciarIntervalo(){
 
 //grafica.
 function chart(consulta){
-    var lblFecha = [];
-    var lblPais = [];
-    var lblCantidad = [];
-
-    var datasets = [];
-    
-
-    // for(var a = 0; a < data.length; a++){
-    //     lblFecha.push(data[a].Fecha);
-    //     // lblPais.push(data[a].Pais);
-    //     // lblCantidad.push(data[a].Cantidad);
-
-    //     var color = newColor();
-    //     datasets.push({
-    //         label: unescape(data[a].Pais),
-    //         data: data[a].Cantidad,
-    //         fill: false,
-    //         backgroundColor: color,
-    //         borderColor: color,
-    //     });
-    // }
-
-    // for(var b = 0; b < data.length; b++){
-    //     var color = newColor();
-    //     datasets.push({
-    //         label: lblPais,
-    //         data: lblCantidad,
-    //         fill: false,
-    //         backgroundColor: color,
-    //         borderColor: color,
-    //     });
-    // }
-
-    //var titulo = $("#titulo_Grafica").val().length > 0 ? $("#titulo_Grafica").val() : idGraficas.toString();
-
     $("#cardGraficas").append(_settings.templates.contenedorGrafica
         .replace("#idgrafica#", idGraficas.toString())
         // .replace("#titulo#", idGraficas.toString())
@@ -585,14 +568,14 @@ function chart(consulta){
 
     //$("#cardGraficas").append(_settings.templates.contenedorFlex.replace("#idgrafica#", idGraficas.toString()));
 
-    //var color = newColor();
     var ctx = document.getElementById("grafica-" + idGraficas.toString()).getContext("2d");
     var myChart = new Chart(ctx, {
         type: 'line',
         lineWidth: 1,
         data: {
-            labels: ['label1', 'label2', 'label3', 'label4', 'label5', 'label6'],
-            datasets: newDatasets()
+            labels: newLabels(),
+            //datasets: newDatasets()
+            datasets: newDatasets(consulta.destino)
             // labels: lblFecha,
             // datasets: datasets
         },
@@ -606,75 +589,23 @@ function chart(consulta){
                 }]
             }
         }
-        //scroll lateral de la grafica.
-        // ,animation:{
-        //     onComplete: function (){
-        //         var sourceCanvas = this.chart.ctx.canvas;
-        //         var copyWidth = this.scale.xScalePaddingLeft - 5;
-        //         var copyHeight = this.scale.endPoint + 5;
-        //         // var targetCtx = document.getElementById("myChartAxis").getContext("2d");
-        //         ctx.canvas.width = copyWidth;
-        //         ctx.drawImage(sourceCanvas, 0, 0, copyWidth, copyHeight, 0, 0, copyWidth, copyHeight);
-        //     }
-        // }
-
-
-    //     ,animation: {
-    //         onComplete: function () {
-    //             if (!rectangleSet) {
-    //                 var scale = window.devicePixelRatio;                       
-
-    //                 var sourceCanvas = chartTest.chart.canvas;
-    //                 var copyWidth = chartTest.scales['y-axis-0'].width - 10;
-    //                 var copyHeight = chartTest.scales['y-axis-0'].height + chartTest.scales['y-axis-0'].top + 10;
-
-    //                 var targetCtx = document.getElementById("axis-Test").getContext("2d");
-
-    //                 targetCtx.scale(scale, scale);
-    //                 targetCtx.canvas.width = copyWidth * scale;
-    //                 targetCtx.canvas.height = copyHeight * scale;
-
-    //                 targetCtx.canvas.style.width = `${copyWidth}px`;
-    //                 targetCtx.canvas.style.height = `${copyHeight}px`;
-    //                 targetCtx.drawImage(sourceCanvas, 0, 0, copyWidth * scale, copyHeight * scale, 0, 0, copyWidth * scale, copyHeight * scale);
-
-    //                 var sourceCtx = sourceCanvas.getContext('2d');
-
-    //                 // Normalize coordinate system to use css pixels.
-
-    //                 sourceCtx.clearRect(0, 0, copyWidth * scale, copyHeight * scale);
-    //                 rectangleSet = true;
-    //             }
-    //         },
-    //         onProgress: function () {
-    //             if (rectangleSet === true) {
-    //                 var copyWidth = chartTest.scales['y-axis-0'].width;
-    //                 var copyHeight = chartTest.scales['y-axis-0'].height + chartTest.scales['y-axis-0'].top + 10;
-
-    //                 var sourceCtx = chartTest.chart.canvas.getContext('2d');
-    //                 sourceCtx.clearRect(0, 0, copyWidth, copyHeight);
-    //             }
-    //         }
-    //     }
-    // }
-    //});
-
-
-
     });
     graficas.push({
-        //nombre: idGraficas, 
         nombre: consulta.titulo,
         grafica: myChart,
         query: consulta,
-        labelsCount: 0
+        labelsCount: maxLabels
     });
     idGraficas++;
     $(".edit-confirm").hide();
+    if(tipoGrafica != 2 && intervalo < 0){
+        iniciarIntervalo();
+    }
 }
 
 //--------------------------------->triggers
 $(document).ready(function(){
+    initPage();
     cargarPaises();
     cargarProveedores();
     cargarClientes();
@@ -682,14 +613,9 @@ $(document).ready(function(){
     //getData();
 });
 
-// $("#btnCrear").click(function(){
-//     chart();
-//     //getData();
-// });
-
 $("#cardGraficas").on("click",".delete-grafica" , function(){
     idChartDelete.push($(this).data("nombre"));
-    tarjetaEliminar = $(this).closest(".card")//.remove();
+    tarjetaEliminar = $(this).closest(".card");
     $("#nombreGrafica").html($(this).data("nombre"));
 });
 
@@ -700,8 +626,6 @@ $(".container-fluid").on("click", ".btn-edit-chart-title", function(){
     tituloActual = $(this).parent().next().val();
     $(this).next().next().show();
     $(this).parent().next().removeAttr("readonly", false);
-    //$(this).closest(".edit-confirm").show();
-    //$(this).closest(".btn-edit-chart-title-cancel").show();
 });
 
 $(".container-fluid").on("click", ".edit-confirm", function(){
@@ -717,14 +641,94 @@ $(".container-fluid").on("click", ".edit-confirm", function(){
         $(this).next().hide();
         $(this).prev().show();
         //actualizar data-nombre, titulo nuevo
-        $(this).parent().next().next().data("nombre", $(this).parent().next().val());
+        var nuevonombre = $(this).parent().next().val();
+        for(var g = 0; g < graficas.length; g++){
+            if(graficas[g].nombre == tituloActual){
+                graficas[g].nombre = nuevonombre;
+                break;
+            }
+        }
+        $(this).parent().next().next().data("nombre", nuevonombre);
     }
-    //$(".edit-confirm").hide();
-    //$(this).closest(".btn-edit-chart-title").show();
     $(this).parent().next().attr("readonly", true);
 });
 
+$("#selectTipoGrafica").change(function(){
+    var tipo = parseInt($(this).val());
+    $(".select-config").hide();
+    switch(tipo){
+        case 0:
+            $("#Pais_Fuente").show();
+            $("#Cliente_Destino").show();
+            $("#Troncal_Cliente_Destino").show();
+
+            $("#Troncal_Proveedor_Destino").hide();
+            $("#Proveedor_Fuente").hide();
+            $("#Cliente_Fuente").hide();
+            $("#Pais_Destino").hide();
+            $("#Proveedor_Destino").hide();
+            break;
+        case 1:
+            $("#Pais_Fuente").show();
+            $("#Proveedor_Destino").show();
+            $("#Troncal_Proveedor_Destino").show();
+
+            $("#Troncal_Cliente_Destino").hide();
+            $("#Proveedor_Fuente").hide();
+            $("#Cliente_Fuente").hide();
+            $("#Pais_Destino").hide();
+            $("#Cliente_Destino").hide();
+            break;
+        case 2:
+            $("#Cliente_Fuente").show();
+            $("#Pais_Destino").show();
+
+            $("#Proveedor_Fuente").hide();
+            $("#Pais_Fuente").hide();
+            $("#Proveedor_Destino").hide();
+            $("#Cliente_Destino").hide();
+            break;
+        case 3:
+            $("#Cliente_Fuente").show();
+            $("#Proveedor_Destino").show();
+            $("#Troncal_Proveedor_Destino").show();
+
+            $("#Troncal_Cliente_Destino").hide();
+            $("#Proveedor_Fuente").hide();
+            $("#Pais_Fuente").hide();
+            $("#Pais_Destino").hide();
+            $("#Cliente_Destino").hide();
+            break;
+        case 4:
+            $("#Proveedor_Fuente").show();
+            $("#Pais_Destino").show();
+
+            $("#Cliente_Fuente").hide();
+            $("#Pais_Fuente").hide();
+            $("#Proveedor_Destino").hide();
+            $("#Cliente_Destino").hide();
+            break;
+        case 5:
+            $("#Proveedor_Fuente").show();
+            $("#Cliente_Destino").show();
+            $("#Troncal_Cliente_Destino").show();
+
+            $("#Troncal_Proveedor_Destino").hide();
+            $("#Cliente_Fuente").hide();
+            $("#Pais_Fuente").hide();
+            $("#Proveedor_Destino").hide();
+            $("#Pais_Destino").hide();
+            break;
+    }
+});
+
 $("#eliminarGrafica").click(function(){
+    for(var g = 0; g < graficas.length; g++){
+        if(graficas[g].nombre == $("#nombreGrafica").html()){
+            graficas.splice(g, 1);
+            break;
+        }
+    }
     $(tarjetaEliminar).remove();
     $("#modalBorrarGrafica").modal("hide");
 });
@@ -755,78 +759,59 @@ $("#btnIntervalo").click(function(){
     iniciarIntervalo();
 });
 
-$(".select-config").change(function(){
-    var id = $(this).attr("id");
-    var valor = $(this).val();
-    var idOpuesto = id.split("_")[0];
-
-    switch(true){
-        case id.includes("Fuente"):
-            if(valor != 0){
-                $(".setting-fuente").not($(this)).attr("disabled", true);
-                $("#"+idOpuesto+"_Destino").attr("disabled", true);
-            }else{
-                $(".setting-fuente").not($(this)).attr("disabled", false);
-
-                if(!$("#"+idOpuesto+"_Destino").is("[disabled]")){
-                    $("#"+idOpuesto+"_Destino").attr("disabled", false);
-                }
-            }
+$("#btnChart").click(function(){
+    switch(tipoGrafica){
+        case 0:
+            $("#selectFechas").hide();
             break;
-        case id.includes("Destino"):
-            if(valor != 0){
-                $(".setting-destino").not($(this)).attr("disabled", true);
-                $("#"+idOpuesto+"_Fuente").attr("disabled", true);
-            }else{
-                $(".setting-destino").not($(this)).attr("disabled", false);
-                if(!$("#"+idOpuesto+"_Fuente").is("[disabled]")){
-                    $("#"+idOpuesto+"_Fuente").attr("disabled", false);
-                }
-            }
+        case 1:
+            $("#selectFechas").show();
+            $(".compare-date-finish").hide();
+            break;
+        case 2:
+            $("#selectFechas").show();
+            $(".compare-date-finish").show();
             break;
     }
 });
 
+//establecer valores de variables de configuracion.
+$("#tipoGrafica").change(function(){
+    tipoGrafica = parseInt($(this).val());
+    //tipoGrafica = tipo;
+    switch(tipoGrafica){
+        case 0:
+            $("#realCharts").show();
+            $("#temporalChart").hide();
+            $("#comparativaChart").hide();
+            maxLabels = parseInt($("#realMaxLabels").val());
+            refresh = parseInt($("#realChartInterval").val());
+            break;
+        case 1:
+            $("#temporalChart").show();
+            $("#realCharts").hide();
+            $("#comparativaChart").hide();
+            maxLabels = parseInt($("#temporalMaxLabels").val());
+            refresh = parseInt($("#temporalChartInterval").val());
+            break;
+        case 2:
+            $("#comparativaChart").show();
+            $("#realCharts").hide();
+            $("#temporalChart").hide();
+            maxLabels = parseInt($("#comparativaMaxLabels").val());
+            break;
+    }
+});
 
+$("#realChartInterval,#temporalChartInterval").change(function(){
+    if(intervalo > 0){
+        clearInterval(intervalo);
+    }
+    refresh = parseInt($(this).val());
+    iniciarIntervalo();
+});
 
-///*************************************************** */
-// var ctx = document.getElementById("myChart").getContext("2d");
-
-//         var data = {
-//             labels: ["January", "February", "March", "April", "May", "June", "July"],
-//             datasets: [
-//                 {
-//                     label: "My First dataset",
-//                     fillColor: "rgba(220,220,220,0.2)",
-//                     strokeColor: "rgba(220,220,220,1)",
-//                     pointColor: "rgba(220,220,220,1)",
-//                     pointStrokeColor: "#fff",
-//                     pointHighlightFill: "#fff",
-//                     pointHighlightStroke: "rgba(220,220,220,1)",
-//                     data: [65, 59, 80, 81, 56, 55, 40]
-//                 },
-//                 {
-//                     label: "My Second dataset",
-//                     fillColor: "rgba(151,187,205,0.2)",
-//                     strokeColor: "rgba(151,187,205,1)",
-//                     pointColor: "rgba(151,187,205,1)",
-//                     pointStrokeColor: "#fff",
-//                     pointHighlightFill: "#fff",
-//                     pointHighlightStroke: "rgba(151,187,205,1)",
-//                     data: [28, 48, 40, 19, 86, 27, 90]
-//                 }
-//             ]
-//         };
-
-//         new Chart(ctx).Line(data, {
-//             onAnimationComplete: function () {
-//                 var sourceCanvas = this.chart.ctx.canvas;
-//                 var copyWidth = this.scale.xScalePaddingLeft - 5;
-//                 // the +5 is so that the bottommost y axis label is not clipped off
-//                 // we could factor this in using measureText if we wanted to be generic
-//                 var copyHeight = this.scale.endPoint + 5;
-//                 var targetCtx = document.getElementById("myChartAxis").getContext("2d");
-//                 targetCtx.canvas.width = copyWidth;
-//                 targetCtx.drawImage(sourceCanvas, 0, 0, copyWidth, copyHeight, 0, 0, copyWidth, copyHeight);
-//             }
-//         });
+$("#realMaxLabels").change(function(){
+    maxLabels = parseInt($(this).val());
+});
+//

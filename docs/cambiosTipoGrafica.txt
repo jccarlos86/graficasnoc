@@ -1,0 +1,52 @@
+seleccionar primero el tipo de grafica
+agregar opcion todos los clientes/proveedor
+proveedores con troncales/ip
+multi select (seleccionar muchas opciones)
+mismo intervalo para todas las graficas
+poder manipular el intervalo de tiempo
+siempre mostrar el dia actual
+mostrar la ultima hora en cada grafica
+grafica comparativa (seleccionar intervalo de fechas
+no se actualiza esta grafica)
+
+
+
+----------------------------------------------------------------------------------------------------------------------------------
+TIPOS DE GRÁFICA
+	- TIEMPO REAL
+	  Siempre va a mostrar lo que ocurre actualmente. NO existirá una cantidad de tiempo definido a mostrar.
+	  Dependerá de la configuración seleccionada por el usuario
+		- Configuración disponible: Intervalo tiempo (5,30,45 segundos) (1,5,30 minutos) , Cantidad de labels (10 - 60).
+
+	- TIEMPO TEMPORAL
+	  Se basarán en el rango de fecha seleccionado por el usuario al momento actual.
+		- Configuración disponible: Rango fecha (1). Intervalo (5, 10, 30 minutos)
+  			- Cantidad de labels: 30
+			- Refrescar la gráfica entera.
+
+	- COMPARATIVAS
+	  Estas gráficas comprenderán el rango de dos fechas seleccionadas. Se mostrará la gráfica en el rango de fechas comprendidos.
+		- Configuración disponible. Inicio fecha (1) (22/05/2020 00:00), Fin fecha (2) (22/05/2020 23:59).
+			- Cantidad de labels: 30
+-------------------------------------------------------------------------------------------------------------------------------------------------
+TIPO DE DATOS
+	- PAIS
+		- CLIENTE
+		- PROVEEDOR
+			- CONFIGURACIONES Y FILTROS
+	- CLIENTE
+		- PAIS
+		- PROVEEDOR
+			- CONFIGURACIONES Y FILTROS
+	- PROVEEDOR
+		- PAIS
+		- CLIENTE
+			- CONFIGURACIONES Y FILTROS.
+-------------------------------------------------------------------------------------------------------------------------------------------------
+FILTROS
+	Todos los clientes, todos los paises, todos los proveedores, todas las troncales.
+	- PAIS
+	- CLIENTE
+	- PROVEEDOR
+	- TRONCAL CLIENTE
+	- TRONCAL PROVEEDOR

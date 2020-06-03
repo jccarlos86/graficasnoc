@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="resources/bootstrap/css/bootstrap.min.css">
+    <!-- <link rel="stylesheet" href="bootstrap-select.min.css"> -->
+    <link rel="icon" type="image/gif" href="img/chart-ico.ico">
     <title>Graficas</title>
     <style>
         .card{
@@ -16,18 +18,17 @@
         <!-- opciones de graficas -->
         <div class="row">
             <div class="col-sm-12 pt-2 pb-2">
-                <!-- <div class="form-group">
-                    <label for="selectPaises">Elige</label>
-                    <select class="form-control" multiple id="selectPaises"></select>
-                </div> -->
+                <button id="btnOptionChart" type="button" class="btn btn-muted" data-toggle="modal" data-target="#modalconfig">
+                    <svg class="bi bi-gear-fill" width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" d="M9.405 1.05c-.413-1.4-2.397-1.4-2.81 0l-.1.34a1.464 1.464 0 0 1-2.105.872l-.31-.17c-1.283-.698-2.686.705-1.987 1.987l.169.311c.446.82.023 1.841-.872 2.105l-.34.1c-1.4.413-1.4 2.397 0 2.81l.34.1a1.464 1.464 0 0 1 .872 2.105l-.17.31c-.698 1.283.705 2.686 1.987 1.987l.311-.169a1.464 1.464 0 0 1 2.105.872l.1.34c.413 1.4 2.397 1.4 2.81 0l.1-.34a1.464 1.464 0 0 1 2.105-.872l.31.17c1.283.698 2.686-.705 1.987-1.987l-.169-.311a1.464 1.464 0 0 1 .872-2.105l.34-.1c1.4-.413 1.4-2.397 0-2.81l-.34-.1a1.464 1.464 0 0 1-.872-2.105l.17-.31c.698-1.283-.705-2.686-1.987-1.987l-.311.169a1.464 1.464 0 0 1-2.105-.872l-.1-.34zM8 10.93a2.929 2.929 0 1 0 0-5.86 2.929 2.929 0 0 0 0 5.858z"/>
+                    </svg>
+                </button>
                 <button id="btnChart" type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalGrafica">
-                    <!-- <i class="fas fa-chart-line"></i> -->
-                    <!-- <i class="fas fa-plus"></i> -->
-                    <span>Agregar Gr&aacute;fica</span>
+                    <span>Create chart</span>
                 </button>
-                <button id="btnIntervalo" type="button" class="btn btn-success">
+                <!-- <button id="btnIntervalo" type="button" class="btn btn-success">
                     <span>iniciar intervalo</span>
-                </button>
+                </button> -->
                 <!-- <button id="btnCrear" type="button" class="btn btn-primary">Crear</button> -->
             </div>
         </div>
@@ -45,18 +46,18 @@
         <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
-            <h5 class="modal-title" id="modalBorrarGraficaTitle">Eliminar Grafica</h5>
+            <h5 class="modal-title" id="modalBorrarGraficaTitle">Delete chart</h5>
             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
             </button>
             </div>
             <div class="modal-body">
-                Estas seguro que deseas eliminar la grafica <br>
+                Are you sure you want to delete this chart?<br>
                 <span id="nombreGrafica" class="text-danger"></span>
             </div>
             <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-            <button type="button" class="btn btn-primary" id="eliminarGrafica">Eliminar</button>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary" id="eliminarGrafica">Delete</button>
             </div>
         </div>
         </div>
@@ -67,7 +68,7 @@
         <div class="modal-dialog modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-            <h5 class="modal-title" id="modalGraficaTitle">Configura la grafica a crear</h5>
+            <h5 class="modal-title" id="modalGraficaTitle">Select a type of chart to create</h5>
             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
             </button>
@@ -75,65 +76,197 @@
             <div class="modal-body">
                 <div class="container-fluid">
                     <div class="row">
-                        <div class="col-sm-6">
-                            <label>Elige una fuente</label>
+                        <div class="col-sm-12">
+                            <div class="form-group">
+                                <label>Select a chart</label>
+                                <select class="form-control" id="selectTipoGrafica">
+                                    <option value="0">Country - Customer</option>
+                                    <option value="1">Country - Provider</option>
+                                    <option value="2">Customer - Country</option>
+                                    <option value="3">Customer - Provider</option>
+                                    <option value="4">Provider - Country</option>
+                                    <option value="5">Provider - Customer</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row" id="selectFuente">
+                        <div class="col-sm-12">
+                            <label>Select source</label>
                             <div class="form-group">
                                 <select class="form-control select-config setting-fuente" id="Pais_Fuente">
-                                    <option value="0">Pais</option>
+                                    <option value="0">Country</option>
                                 </select>
                             </div>
                             <div class="form-group">
                                 <select class="form-control select-config setting-fuente" id="Proveedor_Fuente">
-                                    <option value="0">Proveedor</option>
+                                    <option value="0">Provider</option>
                                 </select>
                             </div>
                             <div class="form-group">
                                 <select class="form-control select-config setting-fuente" id="Cliente_Fuente">
-                                    <option value="0">Cliente</option>
+                                    <option value="0">Customer</option>
                                 </select>
                             </div>
                         </div>
-
-                        <div class="col-sm-6">
-                            <label>Elige un destino</label>
-                            <div class="form-group">
-                                <select class="form-control select-config setting-destino" id="Pais_Destino">
-                                    <option value="0">Pais</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <select class="form-control select-config setting-destino" id="Proveedor_Destino">
-                                    <option value="0">Proveedor</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <select class="form-control select-config setting-destino" id="Cliente_Destino">
-                                    <option value="0">Cliente</option>
-                                </select>
-                            </div>
-                        </div>
-
                     </div>
+                    
+                    <div class="row" id="selectDestinos">
+                        <div class="col-sm-12">
+                            <label>Select destination</label>
+                            <div class="form-group">
+                                <select multiple class="form-control select-config setting-destino" id="Pais_Destino">
+                                    <!-- <option value="0">Countries</option> -->
+                                    <option value="1" selected>All Countries</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <select multiple class="form-control select-config setting-destino" id="Proveedor_Destino">
+                                    <!-- <option value="0">Providers</option> -->
+                                    <option value="1" selected>All Providers</option>
+                                </select>
+                                <select class="form-control select-config setting-destino" id="Troncal_Proveedor_Destino">
+                                    <option value="0">Provider trunk</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <select multiple class="form-control select-config setting-destino" id="Cliente_Destino">
+                                    <!-- <option value="0">Customers</option> -->
+                                    <option value="1" selected>All Customers</option>
+                                </select>
+                                <select class="form-control select-config setting-destino" id="Troncal_Cliente_Destino">
+                                    <option value="0">Customer trunk</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row" id="selectFechas">
+                        <div class="col-sm-12">
+                            <label>Select a date</label>
+                            <div class="form-group temporary-date-start compare-date-start">
+                                <label>From</label>
+                                <input type="datetime-local" class="form-control " name="" id="fechaInicio">
+                            </div>
+                            <div class="form-group compare-date-finish">
+                                <label>To</label>
+                                <input type="datetime-local" class="form-control" name="" id="fechaFin">
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="row">
                         <div class="col-sm-12">
-                            <label>Escribe un titulo para la grafica</label>
                             <div class="form-group">
-                                <input type="text" class="form-control" id="titulo_Grafica" placeholder="Titulo para la Grafica">
+                                <label>Type a title for this chart</label>
+                                <input type="text" class="form-control" id="titulo_Grafica" placeholder="Chart title">
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" id="cancelarGrafica" data-dismiss="modal">Cerrar</button>
-            <button type="button" class="btn btn-primary" id="CrearGrafica">Crear</button>
+            <button type="button" class="btn btn-secondary" id="cancelarGrafica" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary" id="CrearGrafica">Create</button>
+            </div>
+        </div>
+        </div>
+    </div>
+
+     <!-- Modal configuracion de Graficas -->
+     <div class="modal fade" id="modalconfig" tabindex="-1" role="dialog" aria-labelledby="modalconfigTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+            <h5 class="modal-title" id="modalconfigTitle">Chart settings</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            </div>
+            <div class="modal-body">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <small class="text-info">
+                                the data is saved automatically.
+                            </small>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <label>Select a chart type</label>
+                            <div class="form-group">
+                                <select class="form-control config-chart real-chart" id="tipoGrafica">
+                                    <option value="0">Real time</option>
+                                    <option value="1">Temporary</option>
+                                    <option value="2">Compare</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row" id="realCharts">
+                        <div class="col-sm-12">
+                            <div class="form-group">
+                                <label>Choose a time interval</label>
+                                <select class="form-control config-chart real-chart" id="realChartInterval">
+                                    <option value="5000">5 seconds</option>
+                                    <option value="30000">30 seconds</option>
+                                    <option value="45000">45 seconds</option>
+                                    <option value="60000">1 minute</option>
+                                    <option value="300000">5 minutes</option>
+                                    <option value="1800000">30 minutes</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Maximum number of labels per chart</label>
+                                <input type="number" min="10" max="60" class="form-control config-chart real-chart" value="10" id="realMaxLabels">
+                                <small class="form-text text-muted">A number between 10 y 60</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row" id="temporalChart">
+                        <div class="col-sm-12">
+                            <div class="form-group">
+                                <label>Choose a time interval</label>
+                                <select class="form-control config-chart temporal-chart" id="temporalChartInterval">
+                                    <option value="300000">5 minutos</option>
+                                    <option value="600000">10 minutos</option>
+                                    <option value="1800000">30 minutos</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Maximum number of labels per chart</label>
+                                <input disabled type="number" class="form-control config-chart temporal-chart" value="30" id="temporalMaxLabels">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row" id="comparativaChart">
+                        <div class="col-sm-12">
+                            <div class="form-group">
+                                <label>Maximum number of labels per graphic</label>
+                                <input disabled type="number" class="form-control config-chart comparativa-chart" value="30" id="comparativaMaxLabels">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" id="cancelarGrafica" data-dismiss="modal">Close</button>
+            <!-- <button type="button" class="btn btn-primary" id="CrearGrafica">Guardar</button> -->
             </div>
         </div>
         </div>
     </div>
     
     <script src="resources/jquery/jquery-3.2.1.min.js"></script>
+    <!-- <script src="resources/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="poppers.js"></script> -->
     <script src="resources/bootstrap/js/bootstrap.min.js"></script>
+    <!-- <script src="bootstrap-select.min.js"></script> -->
     <script src="chartjs.min.js"></script>
     <script src="graficas.js"></script>
 </body>
